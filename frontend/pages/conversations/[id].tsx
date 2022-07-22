@@ -1,6 +1,8 @@
 import { doc, getDoc, getDocs } from 'firebase/firestore'
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import styled from 'styled-components'
 import ConversationScreen from '../../components/ConversationScreen'
@@ -38,6 +40,12 @@ const StyledConversationContainer = styled.div`
 
 const Conversation = ({ conversation, messages }: Props) => {
 	const [loggedInUser, _loading, _error] = useAuthState(auth)
+	const router = useRouter();
+    const [chatId, setChatId] = useState<String>('')
+    useEffect(() => {
+        console.log(loggedInUser)
+        setChatId(router?.query.id as String)
+    }, [loggedInUser, router?.query.id])
 	return (
 		<StyledContainer>
 			<Head>
@@ -47,7 +55,7 @@ const Conversation = ({ conversation, messages }: Props) => {
 				</title>
 			</Head>
 
-			<Sidebar />
+			<Sidebar chatId={chatId}/>
 
 			<StyledConversationContainer>
 				<ConversationScreen conversation={conversation} messages={messages} />

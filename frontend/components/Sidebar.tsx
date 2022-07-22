@@ -78,7 +78,7 @@ const StyledSidebarButton = styled(Button)`
 	border-bottom: 1px solid whitesmoke;
 `
 
-const Sidebar = () => {
+const Sidebar = ({chatId}: {chatId: String}) => {
 	const [loggedInUser, _loading, _error] = useAuthState(auth)
 
 	const [isOpenNewConversationDialog, setIsOpenNewConversationDialog] =
@@ -177,6 +177,7 @@ const Sidebar = () => {
 					key={conversation.id}
 					id={conversation.id}
 					conversationUsers={(conversation.data() as Conversation).users}
+					isShowing={chatId == conversation.id}
 				/>
 			))}
 

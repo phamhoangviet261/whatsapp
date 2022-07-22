@@ -9,6 +9,7 @@ import {
 } from '../utils/getMessagesInConversation'
 import RecipientAvatar from './RecipientAvatar'
 import AttachFileIcon from '@mui/icons-material/AttachFile'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { useRouter } from 'next/router'
 import { useAuthState } from 'react-firebase-hooks/auth'
@@ -46,12 +47,10 @@ const StyledRecipientHeader = styled.div`
 
 const StyledHeaderInfo = styled.div`
 	flex-grow: 1;
-
 	> h3 {
 		margin-top: 0;
 		margin-bottom: 3px;
 	}
-
 	> span {
 		font-size: 14px;
 		color: gray;
@@ -68,7 +67,7 @@ const StyledHeaderIcons = styled.div`
 
 const StyledMessageContainer = styled.div`
 	padding: 30px;
-	background-color: #e5ded8;
+	background-color: #fff;
 	min-height: 90vh;
 `
 
@@ -123,14 +122,14 @@ const ConversationScreen = ({
 		// If front-end is loading messages behind the scenes, display messages retrieved from Next SSR (passed down from [id].tsx)
 		if (messagesLoading) {
 			return messages.map(message => (
-				<Message key={message.id} message={message} />
+				<Message key={message.id} message={message} photo={recipient?.photoURL as string}/>
 			))
 		}
 
 		// If front-end has finished loading messages, so now we have messagesSnapshot
 		if (messagesSnapshot) {
 			return messagesSnapshot.docs.map(message => (
-				<Message key={message.id} message={transformMessage(message)} />
+				<Message key={message.id} message={transformMessage(message)} photo={recipient?.photoURL as string}/>
 			))
 		}
 
@@ -152,7 +151,10 @@ const ConversationScreen = ({
 			conversation_id: conversationId,
 			sent_at: serverTimestamp(),
 			text: newMessage,
-			user: loggedInUser?.email
+			user: loggedInUser?.email,
+			message_reply_id: '',
+			message_reply_text: '',
+			reactions: []
 		})
 
 		// reset input field
@@ -218,7 +220,15 @@ const ConversationScreen = ({
 
 			{/* Enter new message */}
 			<StyledInputContainer>
-				<InsertEmoticonIcon />
+				<IconButton>
+					<MoreHorizIcon />
+				</IconButton>
+				<IconButton>
+					<InsertEmoticonIcon />
+				</IconButton>
+				<IconButton>
+						<AttachFileIcon />
+				</IconButton>
 				<StyledInput
 					value={newMessage}
 					onChange={event => setNewMessage(event.target.value)}
