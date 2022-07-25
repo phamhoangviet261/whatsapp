@@ -23,7 +23,10 @@ import {
 	KeyboardEventHandler,
 	MouseEventHandler,
 	useRef,
-	useState
+	useState,
+	useContext,
+	createContext,
+	useEffect
 } from 'react'
 import {
 	addDoc,
@@ -32,6 +35,8 @@ import {
 	serverTimestamp,
 	setDoc
 } from 'firebase/firestore'
+
+export const ReplyContext = createContext('');
 
 const StyledRecipientHeader = styled.div`
 	position: sticky;
@@ -43,7 +48,7 @@ const StyledRecipientHeader = styled.div`
 	padding: 11px;
 	height: 80px;
 	border-bottom: 1px solid whitesmoke;
-`
+`;
 
 const StyledHeaderInfo = styled.div`
 	flex-grow: 1;
@@ -55,31 +60,48 @@ const StyledHeaderInfo = styled.div`
 		font-size: 14px;
 		color: gray;
 	}
-`
+`;
 
 const StyledH3 = styled.h3`
 	word-break: break-all;
-`
+`;
 
 const StyledHeaderIcons = styled.div`
 	display: flex;
-`
+`;
 
 const StyledMessageContainer = styled.div`
 	padding: 30px;
 	background-color: #fff;
 	min-height: 90vh;
-`
+	display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+`;
 
 const StyledInputContainer = styled.form`
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	padding: 10px;
+	/* padding: 10px; */
 	position: sticky;
 	bottom: 0;
 	background-color: white;
 	z-index: 100;
-`
+`;
+
+const StyledBottomScreenContainer1 = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	margin: 10px 15px;
+	border-top: 1px solid #e7e7e7;
+`;
+
+const StyledBottomScreenContainer2 = styled.div`
+	display: flex;
+	width: 100%;
+`;
 
 const StyledInput = styled.input`
 	flex-grow: 1;
@@ -90,11 +112,11 @@ const StyledInput = styled.input`
 	padding: 15px;
 	margin-left: 15px;
 	margin-right: 15px;
-`
+`;
 
 const EndOfMessagesForAutoScroll = styled.div`
 	margin-bottom: 30px;
-`
+`;
 
 const ConversationScreen = ({
 	conversation,
@@ -183,9 +205,20 @@ const ConversationScreen = ({
 	const scrollToBottom = () => {
 		endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}
-
+	interface Reply{
+		conversation_id: string
+		message_reply_id: string
+		message_reply_text: string
+		message_replied: string
+		user: string
+	}
+	const [reply, setReply] = useState<Reply>();
+	useEffect(() => {
+		console.log({reply})
+	})
 	return (
 		<>
+		<ReplyContext.Provider value={{reply, setReply}}>
 			<StyledRecipientHeader>
 				<RecipientAvatar
 					recipient={recipient}
@@ -193,7 +226,7 @@ const ConversationScreen = ({
 				/>
 
 				<StyledHeaderInfo>
-					<StyledH3>{recipientEmail}</StyledH3>
+					<StyledH3>{recipient?.displayName ? recipient?.displayName : recipientEmail}</StyledH3>
 					{recipient && (
 						<span>
 							Last active:{' '}
@@ -220,27 +253,42 @@ const ConversationScreen = ({
 
 			{/* Enter new message */}
 			<StyledInputContainer>
-				<IconButton>
-					<MoreHorizIcon />
-				</IconButton>
-				<IconButton>
-					<InsertEmoticonIcon />
-				</IconButton>
-				<IconButton>
-						<AttachFileIcon />
-				</IconButton>
-				<StyledInput
-					value={newMessage}
-					onChange={event => setNewMessage(event.target.value)}
-					onKeyDown={sendMessageOnEnter}
-				/>
-				<IconButton onClick={sendMessageOnClick} disabled={!newMessage}>
-					<SendIcon />
-				</IconButton>
-				<IconButton>
-					<MicIcon />
-				</IconButton>
+				{reply?.message_replied!.length > 0 ? 
+				<StyledBottomScreenContainer1>
+					<span style={{fontSize: '14px', color: '#050505', padding: '6px 12px'}}>
+						Replying to yourself
+					</span>
+					<span style={{fontSize: '12px', color: '#65766B', padding: '6px 12px'}}>
+						{reply?.message_replied}
+					</span>
+				</StyledBottomScreenContainer1>
+				: <></>}
+					
+				
+				<StyledBottomScreenContainer2>
+					<IconButton>
+						<MoreHorizIcon />
+					</IconButton>
+					<IconButton>
+						<InsertEmoticonIcon />
+					</IconButton>
+					<IconButton>
+							<AttachFileIcon />
+					</IconButton>
+					<StyledInput
+						value={newMessage}
+						onChange={event => setNewMessage(event.target.value)}
+						onKeyDown={sendMessageOnEnter}
+					/>
+					<IconButton onClick={sendMessageOnClick} disabled={!newMessage}>
+						<SendIcon />
+					</IconButton>
+					<IconButton>
+						<MicIcon />
+					</IconButton>
+				</StyledBottomScreenContainer2>
 			</StyledInputContainer>
+			</ReplyContext.Provider>
 		</>
 	)
 }

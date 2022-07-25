@@ -104,10 +104,7 @@ const Sidebar = ({chatId}: {chatId: String}) => {
 		queryGetConversationsForCurrentUser
 	)
 
-	const isConversationAlreadyExists = (recipientEmail: string) =>
-		conversationsSnapshot?.docs.find(conversation =>
-			(conversation.data() as Conversation).users.includes(recipientEmail)
-		)
+	const isConversationAlreadyExists = (recipientEmail: string) =>	conversationsSnapshot?.docs.find(conversation => (conversation.data() as Conversation).users.includes(recipientEmail))
 
 	const isInvitingSelf = recipientEmail === loggedInUser?.email
 

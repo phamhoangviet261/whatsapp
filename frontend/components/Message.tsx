@@ -13,7 +13,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Image from 'next/image'
 import Zoom from '@mui/material/Zoom';
 import { Avatar } from "@mui/material"
-
+import { ReplyContext } from './ConversationScreen'
+import { useContext } from 'react'
 
 
 const StyledTimestamp = styled.span`
@@ -114,6 +115,24 @@ const Message = ({ message, photo }: { message: IMessage, photo: string }) => {
     const handleClickAway = () => {
         setOpen(false);
     };
+
+    const {setReply} = useContext(ReplyContext);
+    const handleReply = () => {
+        let obj = {
+            conversation_id: '',
+            message_reply_id: '',
+            message_reply_text: '',
+            message_replied: '',
+            user: ''
+        };
+        console.log({message})
+        obj.conversation_id = message.conversation_id;
+        obj.message_reply_id = message.id;
+        obj.message_replied = message.text;
+        obj.user = message.user;
+        setReply(obj);
+    }
+    
 	return (
        
         <StyledContainer type={loggedInUser?.email == message.user}>
@@ -146,7 +165,7 @@ const Message = ({ message, photo }: { message: IMessage, photo: string }) => {
                 </ClickAwayListener>
                 <Tooltip title="Reply" placement="top" arrow TransitionComponent={Zoom}>
                     <IconButton>
-                        <ReplyIcon />
+                        <ReplyIcon onClick={() => handleReply()}></ReplyIcon>
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="More" placement="top" arrow TransitionComponent={Zoom}>

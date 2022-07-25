@@ -8,6 +8,7 @@ export interface AppUser {
 	email: string
 	lastSeen: Timestamp
 	photoURL: string
+	displayName: string
 }
 
 export interface IMessage {
