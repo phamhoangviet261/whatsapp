@@ -36,7 +36,20 @@ import {
 	setDoc
 } from 'firebase/firestore'
 
-export const ReplyContext = createContext('');
+interface Reply{
+	conversation_id: string
+	message_reply_id: string
+	message_reply_text: string
+	message_replied: string
+	user: string
+}
+
+interface IReplyContext {
+	reply: object
+	setReply: (c: Reply) => void
+}
+
+export const ReplyContext = createContext<IReplyContext>({reply: {}, setReply: () => {}});
 
 const StyledRecipientHeader = styled.div`
 	position: sticky;
@@ -205,14 +218,8 @@ const ConversationScreen = ({
 	const scrollToBottom = () => {
 		endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}
-	interface Reply{
-		conversation_id: string
-		message_reply_id: string
-		message_reply_text: string
-		message_replied: string
-		user: string
-	}
-	const [reply, setReply] = useState<Reply>();
+	
+	const [reply, setReply] = useState<Reply | any>();
 	useEffect(() => {
 		console.log({reply})
 	})
