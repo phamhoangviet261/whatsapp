@@ -31,17 +31,47 @@ const StyledTimestamp = styled.span`
 const StyledMessage = styled.p`
 	width: fit-content;
 	word-break: break-all;
-	max-width: 60%;
-	/* min-width: 5%; */
+	/* max-width: 60%; */
+	min-width: 20%;
 	padding: 8px 15px 10px 15px;
 	border-radius: 30px;
 	margin: 10px;
 	position: relative;
 `
 
+const StyledMessageContainer = styled.div<{type: boolean}>`
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: ${(props) => props.type == false ? 'flex-start' : 'flex-end'};
+`;
+const StyledMessageRepliedContainer = styled.div`
+    /* position: absolute; */
+    display: flex;
+    flex-direction: column;
+    bottom: 20px;
+    font-size: 12px;
+    margin-bottom: -16px;
+    margin-left: 6px;
+`;
+
+const StyledMessageRepliedTo = styled.span`
+    color: #65766B;
+    padding: 10px 6px;
+`;
+
+const StyledMessageReplied = styled.span<{type: boolean}>`
+    width: fit-content;
+    margin-left: ${(props) => props.type == false ? 'unset' : 'auto'};
+    color: #65766B;
+    padding: 10px 20px;
+    background-color: #F6F9FA;
+    border-radius: 20px;
+`;
+
 const StyledSenderMessage = styled(StyledMessage)`
 	/* margin-left: auto; */
-    margin-right: 30px;
+    /* margin-right: 30px; */
 	background-color: rgb(0, 132, 255);
     color: #ffffff;
     &:hover ${StyledTimestamp}{
@@ -66,6 +96,7 @@ const StyledMessageActions = styled.div<{type: boolean, isOpen: boolean}>`
 const StyledContainer = styled.div<{type: boolean}>`
     display: flex;
     flex-direction: ${(props) => props.type == false ? 'row' : 'row-reverse'};
+    align-items: flex-end;
     &:hover{
         ${StyledMessageActions}{
             display: flex;
@@ -97,7 +128,7 @@ const SyledAvatar = styled(Avatar)`
     margin: 10px 15px 5px 5px;
 `;
 
-const Message = ({ message, photo }: { message: IMessage, photo: string }) => {
+const Message = ({ message, photo, targetname }: { message: IMessage, photo: string, targetname: string | undefined }) => {
 	const [loggedInUser, _loading, _error] = useAuthState(auth)
 
 	const MessageType =
@@ -122,14 +153,13 @@ const Message = ({ message, photo }: { message: IMessage, photo: string }) => {
             conversation_id: '',
             message_reply_id: '',
             message_reply_text: '',
-            message_replied: '',
-            user: ''
+            user_reply: ''
         };
         console.log({message})
         obj.conversation_id = message.conversation_id;
         obj.message_reply_id = message.id;
-        obj.message_replied = message.text;
-        obj.user = message.user;
+        obj.message_reply_text = message.text;
+        obj.user_reply = message.user;
         setReply(obj);
     }
     
@@ -137,12 +167,22 @@ const Message = ({ message, photo }: { message: IMessage, photo: string }) => {
        
         <StyledContainer type={loggedInUser?.email == message.user}>
             {photo && !(loggedInUser?.email === message.user) ? <SyledAvatar src={photo}/> : <></>}
-            <Tooltip title={message.sent_at} placement={loggedInUser?.email == message.user ? 'right' : 'left'} arrow TransitionComponent={Zoom}>
-                <MessageType>
-                    {message.text}
-                    {/* <StyledTimestamp>{message.sent_at}</StyledTimestamp> */}
-                </MessageType>
-            </Tooltip>
+            <StyledMessageContainer type={loggedInUser?.email == message.user}>
+                <StyledMessageRepliedContainer>
+                    {message.user == loggedInUser?.email && message.user == message.user_reply ? <StyledMessageRepliedTo>{`You replied to yourself`}</StyledMessageRepliedTo> : ''}
+                    {message.user == loggedInUser?.email && message.user != message.user_reply ? <StyledMessageRepliedTo>{`You replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
+                    {message.user != loggedInUser?.email && message.user == message.user_reply ? <StyledMessageRepliedTo>{`${targetname} replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
+                    {message.user != loggedInUser?.email && message.user != message.user_reply ? <StyledMessageRepliedTo>{`${targetname} replied to you`}</StyledMessageRepliedTo> : ''}
+
+                    {message.message_reply_text.length > 0 ? <StyledMessageReplied type={loggedInUser?.email == message.user}>{message.message_reply_text}</StyledMessageReplied> : ''}
+                </StyledMessageRepliedContainer>
+                <Tooltip title={message.sent_at} placement={loggedInUser?.email == message.user ? 'right' : 'left'} arrow TransitionComponent={Zoom}>
+                    <MessageType>
+                        {message.text}
+                        {/* <StyledTimestamp>{message.sent_at}</StyledTimestamp> */}
+                    </MessageType>
+                </Tooltip>
+            </StyledMessageContainer>
             <StyledMessageActions type={loggedInUser?.email == message.user} isOpen={open}>   
                 <ClickAwayListener onClickAway={handleClickAway}>
                     <Box sx={{ position: 'relative' }}>       

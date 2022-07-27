@@ -17,4 +17,7 @@ export interface IMessage {
 	text: string
 	sent_at: string
 	user: string
+	message_reply_id: string
+	message_reply_text: string
+	user_reply: string
 }

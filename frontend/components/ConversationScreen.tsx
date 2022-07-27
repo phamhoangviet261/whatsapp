@@ -35,13 +35,13 @@ import {
 	serverTimestamp,
 	setDoc
 } from 'firebase/firestore'
+import Reply from '@mui/icons-material/Reply'
 
 interface Reply{
 	conversation_id: string
 	message_reply_id: string
 	message_reply_text: string
-	message_replied: string
-	user: string
+	user_reply: string
 }
 
 interface IReplyContext {
@@ -131,6 +131,13 @@ const EndOfMessagesForAutoScroll = styled.div`
 	margin-bottom: 30px;
 `;
 
+const ButtonClearReplyMessage= styled.span`
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+`;
+
 const ConversationScreen = ({
 	conversation,
 	messages
@@ -140,6 +147,7 @@ const ConversationScreen = ({
 }) => {
 	const [newMessage, setNewMessage] = useState('')
 	const [loggedInUser, _loading, _error] = useAuthState(auth)
+	const [reply, setReply] = useState<Reply | any>();
 
 	const conversationUsers = conversation.users
 
@@ -157,14 +165,14 @@ const ConversationScreen = ({
 		// If front-end is loading messages behind the scenes, display messages retrieved from Next SSR (passed down from [id].tsx)
 		if (messagesLoading) {
 			return messages.map(message => (
-				<Message key={message.id} message={message} photo={recipient?.photoURL as string}/>
+				<Message key={message.id} message={message} photo={recipient?.photoURL as string} targetname={recipient?.displayName ? recipient?.displayName : 'User'}/>
 			))
 		}
 
 		// If front-end has finished loading messages, so now we have messagesSnapshot
 		if (messagesSnapshot) {
 			return messagesSnapshot.docs.map(message => (
-				<Message key={message.id} message={transformMessage(message)} photo={recipient?.photoURL as string}/>
+				<Message key={message.id} message={transformMessage(message)} photo={recipient?.photoURL as string} targetname={recipient?.displayName ? recipient?.displayName : 'User'}/>
 			))
 		}
 
@@ -187,9 +195,10 @@ const ConversationScreen = ({
 			sent_at: serverTimestamp(),
 			text: newMessage,
 			user: loggedInUser?.email,
-			message_reply_id: '',
-			message_reply_text: '',
-			reactions: []
+			message_reply_id: reply?.message_reply_id ? reply.message_reply_id : '',
+			message_reply_text: reply?.message_reply_text ? reply.message_reply_text : '',
+			reactions: [],
+			user_reply: reply?.user_reply ? reply.user_reply : '',
 		})
 
 		// reset input field
@@ -197,6 +206,14 @@ const ConversationScreen = ({
 
 		// scroll to bottom
 		scrollToBottom()
+
+		let newReply = {
+			conversation_id: '',
+			message_reply_id: '',
+			message_reply_text: '',
+			user: ''
+		}
+		setReply(newReply);
 	}
 
 	const sendMessageOnEnter: KeyboardEventHandler<HTMLInputElement> = event => {
@@ -219,10 +236,19 @@ const ConversationScreen = ({
 		endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}
 	
-	const [reply, setReply] = useState<Reply | any>();
-	useEffect(() => {
-		console.log({reply})
-	})
+	// useEffect(() => {
+	// 	console.log({reply})
+	// })
+	const handleClearReply = () => {
+		// console.log({reply});
+		let newReply = {
+			conversation_id: '',
+			message_reply_id: '',
+			message_reply_text: '',
+			user: ''
+		}
+		setReply(newReply);
+	}
 	return (
 		<>
 		<ReplyContext.Provider value={{reply, setReply}}>
@@ -260,14 +286,15 @@ const ConversationScreen = ({
 
 			{/* Enter new message */}
 			<StyledInputContainer>
-				{reply?.message_replied!.length > 0 ? 
+				{reply?.message_reply_text!.length > 0 ? 
 				<StyledBottomScreenContainer1>
 					<span style={{fontSize: '14px', color: '#050505', padding: '6px 12px'}}>
 						Replying to yourself
 					</span>
 					<span style={{fontSize: '12px', color: '#65766B', padding: '6px 12px'}}>
-						{reply?.message_replied}
+						{reply?.message_reply_text}
 					</span>
+					<ButtonClearReplyMessage onClick={handleClearReply}>x</ButtonClearReplyMessage>
 				</StyledBottomScreenContainer1>
 				: <></>}
 					
