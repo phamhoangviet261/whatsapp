@@ -199,7 +199,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
         obj.message_reply_text = message.text;
         obj.user_reply = message.user;
         setReply(obj);
-        document.getElementById('input-chat').focus();
+        document.getElementById('input-chat')!.focus();
     }
 
     const renderReaction = (type: string) => {
