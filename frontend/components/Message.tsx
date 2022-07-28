@@ -213,7 +213,8 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
                 return <Image src={`/sad.png`} alt="IMAGE_COOL" width={32} height={32}/>;
             case 'angry':                
                 return <Image src={`/angry.png`} alt="IMAGE_COOL" width={32} height={32}/>;
-        
+            case 'ilu_sign':
+                return <Image src={`/ilu_sign.jpg`} alt="IMAGE_COOL" width={32} height={32}/>                                            
             default:
                 return <></>;
         }
@@ -268,6 +269,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
                                             <Image src={`/haha.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'haha')}/>
                                             <Image src={`/sad.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'sad')}/>
                                             <Image src={`/angry.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'angry')}/>
+                                            <Image src={`/ilu_sign.jpg`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'ilu_sign')}/>                                            
                                         </StyledBox>
                                     ) : null}
                                 </Box>
