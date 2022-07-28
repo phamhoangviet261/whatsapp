@@ -41,7 +41,7 @@ const StyledMessage = styled.p`
 	min-width: 20%;
 	padding: 8px 15px 10px 15px;
 	border-radius: 30px;
-	margin: 10px;
+	margin: 20px 10px;
 	position: relative;
 `
 
@@ -57,7 +57,7 @@ const StyledMessageRepliedContainer = styled.div`
     flex-direction: column;
     bottom: 20px;
     font-size: 12px;
-    margin-bottom: -38px;
+    margin-bottom: -28px;
     margin-left: 22px;
     margin-right: 25px;
 `;
@@ -101,12 +101,13 @@ const StyledReceiverMessage = styled(StyledMessage)<{type: boolean}>`
 `
 
 const StyledMessageActions = styled.div<{type: boolean, isOpen: boolean}>`
-    display: ${(props) => props.isOpen == true ? 'flex' : 'none'};
-    flex-direction: ${(props) => props.type == false ? 'row' : 'row-reverse'};
+    display: ${(props) => props.isOpen == true ? 'flex' : 'flex'};
+    flex-direction: ${(props) => props.type == false ? 'row' : 'row'};
     align-items: flex-start;
     margin-top: 5px;
     margin-right: ${(props) => props.type == true ? '10px' : 'unset'};
     margin-left: ${(props) => props.type == true ? 'unset' : '10px'};
+    visibility: hidden;
 `;
 
 const StyledContainer = styled.div<{type: boolean}>`
@@ -116,15 +117,16 @@ const StyledContainer = styled.div<{type: boolean}>`
     &:hover{
         ${StyledMessageActions}{
             display: flex;
+            visibility: unset;
         }
     }
 `;
 
-const StyledBox = styled(Box)`
+const StyledBox = styled(Box)<{type: boolean}>`
     position: absolute;
     top: -40px;
     right: -237%;
-    // left: 0,
+    left:  ${(props) => props.type == true ? 'unset' : '-120px'};
     display: flex;
     z-index: 999;
     width: max-content;
@@ -146,9 +148,9 @@ const SyledAvatar = styled(Avatar)`
 
 const StyledReaction = styled(Box)`
     position: absolute;
-    bottom: 12px;
+    bottom: -10px;
     /* right: -237%; */
-    // left: 0,
+    /* left: 20px; */
     display: flex;
     z-index: 999;
     width: max-content;
@@ -197,6 +199,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
         obj.message_reply_text = message.text;
         obj.user_reply = message.user;
         setReply(obj);
+        document.getElementById('input-chat').focus();
     }
 
     const renderReaction = (type: string) => {
@@ -244,7 +247,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
                     {message.user != loggedInUser?.email && message.user == message.user_reply && message.user_reply != '' ? <StyledMessageRepliedTo>{`${targetname} replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
                     {message.user != loggedInUser?.email && message.user != message.user_reply && message.user_reply != '' ? <StyledMessageRepliedTo>{`${targetname} replied to you`}</StyledMessageRepliedTo> : ''}
 
-                    {message.message_reply_text.length > 0 ? <StyledMessageReplied type={loggedInUser?.email == message.user}>{message.message_reply_text}</StyledMessageReplied> : ''}
+                    {message.message_reply_text.length > 0 ? <StyledMessageReplied type={loggedInUser?.email == message.user}>{message.message_reply_text}</StyledMessageReplied> : <></>}
                 </StyledMessageRepliedContainer>
                 <Tooltip title={message.sent_at} placement={loggedInUser?.email == message.user ? 'right' : 'left'} arrow TransitionComponent={Zoom}>
                     <MessageType type={loggedInUser?.email == message.user}>
@@ -262,7 +265,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
                                         </IconButton>
                                     </Tooltip>
                                     {open ? (
-                                        <StyledBox>
+                                        <StyledBox type={loggedInUser?.email == message.user}>
                                             <Image src={`/like.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'like')}/>
                                             <Image src={`/love.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'love')}/>
                                             <Image src={`/care.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'care')}/>

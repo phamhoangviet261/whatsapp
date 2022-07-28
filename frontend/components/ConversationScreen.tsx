@@ -100,7 +100,7 @@ const StyledInputContainer = styled.form`
 	position: sticky;
 	bottom: 0;
 	background-color: white;
-	z-index: 100;
+	z-index: 9999;
 `;
 
 const StyledBottomScreenContainer1 = styled.div`
@@ -310,6 +310,7 @@ const ConversationScreen = ({
 							<AttachFileIcon />
 					</IconButton>
 					<StyledInput
+						id="input-chat"
 						value={newMessage}
 						placeholder='Aa'
 						onChange={event => setNewMessage(event.target.value)}
