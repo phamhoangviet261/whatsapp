@@ -61,6 +61,7 @@ const StyledRecipientHeader = styled.div`
 	padding: 11px;
 	height: 80px;
 	border-bottom: 1px solid whitesmoke;
+	z-index: 9999;
 `;
 
 const StyledHeaderInfo = styled.div`
@@ -90,6 +91,10 @@ const StyledMessageContainer = styled.div`
 	display: flex;
     flex-direction: column;
     justify-content: flex-end;
+	background-image: url('https://i.pinimg.com/564x/a7/9d/4a/a79d4a17f3308c7b1978ec70b87d5ed2.jpg');
+	background-repeat: no-repeat;
+  	background-attachment: fixed;
+	background-repeat: repeat;
 `;
 
 const StyledInputContainer = styled.form`
@@ -101,6 +106,7 @@ const StyledInputContainer = styled.form`
 	bottom: 0;
 	background-color: white;
 	z-index: 9999;
+	padding: 5px 0px;
 `;
 
 const StyledBottomScreenContainer1 = styled.div`
