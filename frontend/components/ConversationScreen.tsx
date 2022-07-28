@@ -84,7 +84,7 @@ const StyledHeaderIcons = styled.div`
 `;
 
 const StyledMessageContainer = styled.div`
-	padding: 30px;
+	padding: 10px;
 	background-color: #fff;
 	min-height: 90vh;
 	display: flex;
@@ -120,7 +120,7 @@ const StyledInput = styled.input`
 	flex-grow: 1;
 	outline: none;
 	border: none;
-	border-radius: 10px;
+	border-radius: 30px;
 	background-color: whitesmoke;
 	padding: 15px;
 	margin-left: 15px;
@@ -311,6 +311,7 @@ const ConversationScreen = ({
 					</IconButton>
 					<StyledInput
 						value={newMessage}
+						placeholder='Aa'
 						onChange={event => setNewMessage(event.target.value)}
 						onKeyDown={sendMessageOnEnter}
 					/>

@@ -1,6 +1,5 @@
 import { useAuthState } from 'react-firebase-hooks/auth'
 import styled from 'styled-components'
-import { auth } from '../config/firebase'
 import { IMessage } from '../types'
 import IconButton from '@mui/material/IconButton'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -15,7 +14,14 @@ import Zoom from '@mui/material/Zoom';
 import { Avatar } from "@mui/material"
 import { ReplyContext } from './ConversationScreen'
 import { useContext } from 'react'
-
+import {
+	addDoc,
+	collection,
+	doc,
+	serverTimestamp,
+	setDoc
+} from 'firebase/firestore'
+import { auth, db } from '../config/firebase'
 
 const StyledTimestamp = styled.span`
 	color: gray;
@@ -51,8 +57,9 @@ const StyledMessageRepliedContainer = styled.div`
     flex-direction: column;
     bottom: 20px;
     font-size: 12px;
-    margin-bottom: -16px;
-    margin-left: 6px;
+    margin-bottom: -38px;
+    margin-left: 22px;
+    margin-right: 25px;
 `;
 
 const StyledMessageRepliedTo = styled.span`
@@ -69,21 +76,28 @@ const StyledMessageReplied = styled.span<{type: boolean}>`
     border-radius: 20px;
 `;
 
-const StyledSenderMessage = styled(StyledMessage)`
+const StyledSenderMessage = styled(StyledMessage)<{type: boolean}>`
 	/* margin-left: auto; */
     /* margin-right: 30px; */
-	background-color: rgb(0, 132, 255);
     color: #ffffff;
-    &:hover ${StyledTimestamp}{
-        display: block;
+    display: flex;
+    flex-direction: ${(props) => props.type == false ? 'row' : 'row-reverse'};
+    align-items: center;
+    & > p{
+	    background-color: rgb(0, 132, 255);
+        padding: 10px 15px;
+	    border-radius: 30px;
     }
 `
 
-const StyledReceiverMessage = styled(StyledMessage)`
-	background-color: #E4E6EB;
-    &:hover ${StyledTimestamp}{
-        display: block;
-    }
+const StyledReceiverMessage = styled(StyledMessage)<{type: boolean}>`
+    display: flex;
+    align-items: center;
+    & > p{
+	    background-color: #E4E6EB;
+	    border-radius: 30px;
+        padding: 10px 15px;
+    }    
 `
 
 const StyledMessageActions = styled.div<{type: boolean, isOpen: boolean}>`
@@ -91,6 +105,8 @@ const StyledMessageActions = styled.div<{type: boolean, isOpen: boolean}>`
     flex-direction: ${(props) => props.type == false ? 'row' : 'row-reverse'};
     align-items: flex-start;
     margin-top: 5px;
+    margin-right: ${(props) => props.type == true ? '10px' : 'unset'};
+    margin-left: ${(props) => props.type == true ? 'unset' : '10px'};
 `;
 
 const StyledContainer = styled.div<{type: boolean}>`
@@ -107,7 +123,7 @@ const StyledContainer = styled.div<{type: boolean}>`
 const StyledBox = styled(Box)`
     position: absolute;
     top: -40px;
-    right: -300%;
+    right: -237%;
     // left: 0,
     display: flex;
     z-index: 999;
@@ -125,7 +141,27 @@ const StyledBox = styled(Box)`
 `;
 
 const SyledAvatar = styled(Avatar)`
-    margin: 10px 15px 5px 5px;
+    margin: 10px 15px 35px 5px;
+`;
+
+const StyledReaction = styled(Box)`
+    position: absolute;
+    bottom: 12px;
+    /* right: -237%; */
+    // left: 0,
+    display: flex;
+    z-index: 999;
+    width: max-content;
+    gap: 4px;
+    padding: 4px 4px;
+    border-radius: 20px;
+    background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    cursor: pointer;
+    & img{
+        width: 16px !important;
+        height: 16px !important;
+    }
 `;
 
 const Message = ({ message, photo, targetname }: { message: IMessage, photo: string, targetname: string | undefined }) => {
@@ -162,58 +198,95 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
         obj.user_reply = message.user;
         setReply(obj);
     }
-    
+
+    const renderReaction = (type: string) => {
+        switch (type) {
+            case 'like':                
+                return <Image src={`/like.png`} alt="IMAGE_COOL" width={32} height={32}/>;
+            case 'love':                
+                return <Image src={`/love.png`} alt="IMAGE_COOL" width={32} height={32}/>;
+            case 'care':                
+                return <Image src={`/care.png`} alt="IMAGE_COOL" width={32} height={32}/>;
+            case 'haha':                
+                return <Image src={`/haha.png`} alt="IMAGE_COOL" width={32} height={32}/>;
+            case 'sad':                
+                return <Image src={`/sad.png`} alt="IMAGE_COOL" width={32} height={32}/>;
+            case 'angry':                
+                return <Image src={`/angry.png`} alt="IMAGE_COOL" width={32} height={32}/>;
+        
+            default:
+                return <></>;
+        }
+    }
+
+    const addReaction = async (id: string, oldReactions: any, newReaction: string) => {
+        oldReactions.push(newReaction);
+        const fakeReactions = JSON.parse(JSON.stringify(oldReactions));
+        // let r = [...new Set(fakeReactions)];
+        await setDoc(
+			doc(db, 'messages', id),
+			{
+				reactions: fakeReactions
+			},
+			{ merge: true }
+		)
+    }
+
 	return (
        
         <StyledContainer type={loggedInUser?.email == message.user}>
             {photo && !(loggedInUser?.email === message.user) ? <SyledAvatar src={photo}/> : <></>}
             <StyledMessageContainer type={loggedInUser?.email == message.user}>
                 <StyledMessageRepliedContainer>
-                    {message.user == loggedInUser?.email && message.user == message.user_reply ? <StyledMessageRepliedTo>{`You replied to yourself`}</StyledMessageRepliedTo> : ''}
-                    {message.user == loggedInUser?.email && message.user != message.user_reply ? <StyledMessageRepliedTo>{`You replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
-                    {message.user != loggedInUser?.email && message.user == message.user_reply ? <StyledMessageRepliedTo>{`${targetname} replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
-                    {message.user != loggedInUser?.email && message.user != message.user_reply ? <StyledMessageRepliedTo>{`${targetname} replied to you`}</StyledMessageRepliedTo> : ''}
+                    {message.user == loggedInUser?.email && message.user == message.user_reply && message.user_reply != '' ? <StyledMessageRepliedTo>{`You replied to yourself`}</StyledMessageRepliedTo> : ''}
+                    {message.user == loggedInUser?.email && message.user != message.user_reply && message.user_reply != '' ? <StyledMessageRepliedTo>{`You replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
+                    {message.user != loggedInUser?.email && message.user == message.user_reply && message.user_reply != '' ? <StyledMessageRepliedTo>{`${targetname} replied to ${targetname}`}</StyledMessageRepliedTo> : ''}
+                    {message.user != loggedInUser?.email && message.user != message.user_reply && message.user_reply != '' ? <StyledMessageRepliedTo>{`${targetname} replied to you`}</StyledMessageRepliedTo> : ''}
 
                     {message.message_reply_text.length > 0 ? <StyledMessageReplied type={loggedInUser?.email == message.user}>{message.message_reply_text}</StyledMessageReplied> : ''}
                 </StyledMessageRepliedContainer>
                 <Tooltip title={message.sent_at} placement={loggedInUser?.email == message.user ? 'right' : 'left'} arrow TransitionComponent={Zoom}>
-                    <MessageType>
-                        {message.text}
+                    <MessageType type={loggedInUser?.email == message.user}>
+                        <p>{message.text}</p>
+                        <StyledReaction>
+                            {message?.reactions.length > 0 && message?.reactions.map(r => renderReaction(r))}
+                        </StyledReaction>
                         {/* <StyledTimestamp>{message.sent_at}</StyledTimestamp> */}
+                        <StyledMessageActions type={loggedInUser?.email == message.user} isOpen={open}>   
+                            <ClickAwayListener onClickAway={handleClickAway}>
+                                <Box sx={{ position: 'relative' }}>       
+                                    <Tooltip title="React" placement="top" arrow TransitionComponent={Zoom}>
+                                        <IconButton onClick={handleClick}>
+                                            <InsertEmoticonIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    {open ? (
+                                        <StyledBox>
+                                            <Image src={`/like.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'like')}/>
+                                            <Image src={`/love.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'love')}/>
+                                            <Image src={`/care.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'care')}/>
+                                            <Image src={`/haha.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'haha')}/>
+                                            <Image src={`/sad.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'sad')}/>
+                                            <Image src={`/angry.png`} alt="IMAGE_COOL" width={32} height={32} onClick={()=> addReaction(message?.id, message?.reactions, 'angry')}/>
+                                        </StyledBox>
+                                    ) : null}
+                                </Box>
+                            </ClickAwayListener>
+                            <Tooltip title="Reply" placement="top" arrow TransitionComponent={Zoom}>
+                                <IconButton onClick={() => handleReply()}>
+                                    <ReplyIcon></ReplyIcon>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="More" placement="top" arrow TransitionComponent={Zoom}>
+                                <IconButton>
+                                    <MoreVertIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </StyledMessageActions>
                     </MessageType>
                 </Tooltip>
             </StyledMessageContainer>
-            <StyledMessageActions type={loggedInUser?.email == message.user} isOpen={open}>   
-                <ClickAwayListener onClickAway={handleClickAway}>
-                    <Box sx={{ position: 'relative' }}>       
-                        <Tooltip title="React" placement="top" arrow TransitionComponent={Zoom}>
-                            <IconButton onClick={handleClick}>
-                                <InsertEmoticonIcon />
-                            </IconButton>
-                        </Tooltip>
-                        {open ? (
-                            <StyledBox>
-                                <Image src={`/like.png`} alt="IMAGE_COOL" width={32} height={32}/>
-                                <Image src={`/love.png`} alt="IMAGE_COOL" width={32} height={32}/>
-                                <Image src={`/care.png`} alt="IMAGE_COOL" width={32} height={32}/>
-                                <Image src={`/haha.png`} alt="IMAGE_COOL" width={32} height={32}/>
-                                <Image src={`/sad.png`} alt="IMAGE_COOL" width={32} height={32}/>
-                                <Image src={`/angry.png`} alt="IMAGE_COOL" width={32} height={32}/>
-                            </StyledBox>
-                        ) : null}
-                    </Box>
-                </ClickAwayListener>
-                <Tooltip title="Reply" placement="top" arrow TransitionComponent={Zoom}>
-                    <IconButton>
-                        <ReplyIcon onClick={() => handleReply()}></ReplyIcon>
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="More" placement="top" arrow TransitionComponent={Zoom}>
-                    <IconButton>
-                        <MoreVertIcon />
-                    </IconButton>
-                </Tooltip>
-            </StyledMessageActions>
+            
         </StyledContainer>
         
 	)
