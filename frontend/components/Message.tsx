@@ -253,7 +253,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
                     <MessageType type={loggedInUser?.email == message.user}>
                         <p>{message.text}</p>
                         <StyledReaction>
-                            {message?.reactions.length > 0 && message?.reactions.map(r => renderReaction(r))}
+                            {message?.reactions.length > 0 && message?.reactions.filter((value, index, self) => self.indexOf(value) === index).map(r => renderReaction(r))}
                         </StyledReaction>
                         {/* <StyledTimestamp>{message.sent_at}</StyledTimestamp> */}
                         <StyledMessageActions type={loggedInUser?.email == message.user} isOpen={open}>   

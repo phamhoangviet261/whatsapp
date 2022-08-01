@@ -36,7 +36,7 @@ import {
 	setDoc
 } from 'firebase/firestore'
 import Reply from '@mui/icons-material/Reply'
-
+import SettingBar from '../components/SettingBar'
 interface Reply{
 	conversation_id: string
 	message_reply_id: string
@@ -51,10 +51,28 @@ interface IReplyContext {
 
 export const ReplyContext = createContext<IReplyContext>({reply: {}, setReply: () => {}});
 
+const StyledContainer = styled.div`
+	display: flex;
+`;
+
+const StyledConversationContainer = styled.div`
+	/* display: flex; */
+	width: 70%;
+	max-height: 100vh;
+	overflow-y: scroll;
+	/* max-height: 91vh; */
+	::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Hide scrollbar for IE, Edge and Firefox */
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+`;
+
 const StyledRecipientHeader = styled.div`
 	position: sticky;
 	background-color: white;
-	z-index: 100;
 	top: 0;
 	display: flex;
 	align-items: center;
@@ -94,7 +112,9 @@ const StyledMessageContainer = styled.div`
 	background-image: url('https://i.pinimg.com/564x/a7/9d/4a/a79d4a17f3308c7b1978ec70b87d5ed2.jpg');
 	background-repeat: no-repeat;
   	background-attachment: fixed;
-	background-repeat: repeat;
+	background-repeat: repeat;	
+	
+
 `;
 
 const StyledInputContainer = styled.form`
@@ -107,6 +127,7 @@ const StyledInputContainer = styled.form`
 	background-color: white;
 	z-index: 9999;
 	padding: 5px 0px;
+	width: 100%;
 `;
 
 const StyledBottomScreenContainer1 = styled.div`
@@ -151,6 +172,7 @@ const ConversationScreen = ({
 	conversation: Conversation
 	messages: IMessage[]
 }) => {
+	const [showSetting, setShowSetting] = useState(true);
 	const [newMessage, setNewMessage] = useState('')
 	const [loggedInUser, _loading, _error] = useAuthState(auth)
 	const [reply, setReply] = useState<Reply | any>();
@@ -256,82 +278,85 @@ const ConversationScreen = ({
 		setReply(newReply);
 	}
 	return (
-		<>
-		<ReplyContext.Provider value={{reply, setReply}}>
-			<StyledRecipientHeader>
-				<RecipientAvatar
-					recipient={recipient}
-					recipientEmail={recipientEmail}
-				/>
+		<StyledContainer>
+			<StyledConversationContainer>
+				<ReplyContext.Provider value={{reply, setReply}}>
+					<StyledRecipientHeader>
+						<RecipientAvatar
+							recipient={recipient}
+							recipientEmail={recipientEmail}
+						/>
 
-				<StyledHeaderInfo>
-					<StyledH3>{recipient?.displayName ? recipient?.displayName : recipientEmail}</StyledH3>
-					{recipient && (
-						<span>
-							Last active:{' '}
-							{convertFirestoreTimestampToString(recipient.lastSeen)}
-						</span>
-					)}
-				</StyledHeaderInfo>
+						<StyledHeaderInfo>
+							<StyledH3>{recipient?.displayName ? recipient?.displayName : recipientEmail}</StyledH3>
+							{recipient && (
+								<span>
+									Last active:{' '}
+									{convertFirestoreTimestampToString(recipient.lastSeen)}
+								</span>
+							)}
+						</StyledHeaderInfo>
 
-				<StyledHeaderIcons>
-					<IconButton>
-						<AttachFileIcon />
-					</IconButton>
-					<IconButton>
-						<MoreVertIcon />
-					</IconButton>
-				</StyledHeaderIcons>
-			</StyledRecipientHeader>
+						<StyledHeaderIcons>
+							<IconButton>
+								<AttachFileIcon />
+							</IconButton>
+							<IconButton>
+								<MoreVertIcon />
+							</IconButton>
+						</StyledHeaderIcons>
+					</StyledRecipientHeader>
 
-			<StyledMessageContainer>
-				{showMessages()}
-				{/* for auto scroll to the end when a new message is sent */}
-				<EndOfMessagesForAutoScroll ref={endOfMessagesRef} />
-			</StyledMessageContainer>
+					<StyledMessageContainer>
+						{showMessages()}
+						{/* for auto scroll to the end when a new message is sent */}
+						<EndOfMessagesForAutoScroll ref={endOfMessagesRef} />
+					</StyledMessageContainer>
 
-			{/* Enter new message */}
-			<StyledInputContainer>
-				{reply?.message_reply_text!.length > 0 ? 
-				<StyledBottomScreenContainer1>
-					<span style={{fontSize: '14px', color: '#050505', padding: '6px 12px'}}>
-						Replying to yourself
-					</span>
-					<span style={{fontSize: '12px', color: '#65766B', padding: '6px 12px'}}>
-						{reply?.message_reply_text}
-					</span>
-					<ButtonClearReplyMessage onClick={handleClearReply}>x</ButtonClearReplyMessage>
-				</StyledBottomScreenContainer1>
-				: <></>}
-					
-				
-				<StyledBottomScreenContainer2>
-					<IconButton>
-						<MoreHorizIcon />
-					</IconButton>
-					<IconButton>
-						<InsertEmoticonIcon />
-					</IconButton>
-					<IconButton>
-							<AttachFileIcon />
-					</IconButton>
-					<StyledInput
-						id="input-chat"
-						value={newMessage}
-						placeholder='Aa'
-						onChange={event => setNewMessage(event.target.value)}
-						onKeyDown={sendMessageOnEnter}
-					/>
-					<IconButton onClick={sendMessageOnClick} disabled={!newMessage}>
-						<SendIcon />
-					</IconButton>
-					<IconButton>
-						<MicIcon />
-					</IconButton>
-				</StyledBottomScreenContainer2>
-			</StyledInputContainer>
-			</ReplyContext.Provider>
-		</>
+					{/* Enter new message */}
+					<StyledInputContainer>
+						{reply?.message_reply_text!.length > 0 ? 
+						<StyledBottomScreenContainer1>
+							<span style={{fontSize: '14px', color: '#050505', padding: '6px 12px'}}>
+								Replying to yourself
+							</span>
+							<span style={{fontSize: '12px', color: '#65766B', padding: '6px 12px'}}>
+								{reply?.message_reply_text}
+							</span>
+							<ButtonClearReplyMessage onClick={handleClearReply}>x</ButtonClearReplyMessage>
+						</StyledBottomScreenContainer1>
+						: <></>}
+							
+						
+						<StyledBottomScreenContainer2>
+							<IconButton>
+								<MoreHorizIcon />
+							</IconButton>
+							<IconButton>
+								<InsertEmoticonIcon />
+							</IconButton>
+							<IconButton>
+									<AttachFileIcon />
+							</IconButton>
+							<StyledInput
+								id="input-chat"
+								value={newMessage}
+								placeholder='Aa'
+								onChange={event => setNewMessage(event.target.value)}
+								onKeyDown={sendMessageOnEnter}
+							/>
+							<IconButton onClick={sendMessageOnClick} disabled={!newMessage}>
+								<SendIcon />
+							</IconButton>
+							<IconButton>
+								<MicIcon />
+							</IconButton>
+						</StyledBottomScreenContainer2>
+					</StyledInputContainer>
+				</ReplyContext.Provider>
+			</StyledConversationContainer>
+			{showSetting && <SettingBar user={recipient}></SettingBar>}
+		</StyledContainer>
 	)
 }
 

@@ -14,7 +14,7 @@ import {
 	transformMessage
 } from '../../utils/getMessagesInConversation'
 import { getRecipientEmail } from '../../utils/getRecipientEmail'
-
+import SettingBar from '../../components/SettingBar'
 interface Props {
 	conversation: Conversation
 	messages: IMessage[]
@@ -26,7 +26,7 @@ const StyledContainer = styled.div`
 
 const StyledConversationContainer = styled.div`
 	flex-grow: 1;
-	overflow: scroll;
+	/* overflow: scroll; */
 	height: 100vh;
 	/* Hide scrollbar for Chrome, Safari and Opera */
 	::-webkit-scrollbar {
@@ -34,7 +34,7 @@ const StyledConversationContainer = styled.div`
 	}
 
 	/* Hide scrollbar for IE, Edge and Firefox */
-	-ms-overflow-style: none; /* IE and Edge */
+	//-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
 `
 

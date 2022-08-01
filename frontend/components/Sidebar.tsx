@@ -26,7 +26,7 @@ const StyledContainer = styled.div`
 	height: 100vh;
 	min-width: 300px;
 	max-width: 350px;
-	overflow-y: scroll;
+	/* overflow-y: scroll; */
 	border-right: 1px solid whitesmoke;
 
 	/* Hide scrollbar for Chrome, Safari and Opera */
@@ -35,7 +35,7 @@ const StyledContainer = styled.div`
 	}
 
 	/* Hide scrollbar for IE, Edge and Firefox */
-	-ms-overflow-style: none; /* IE and Edge */
+	//-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
 `
 
