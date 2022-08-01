@@ -70,6 +70,7 @@ const StyledMessageRepliedTo = styled.span`
 const StyledMessageReplied = styled.span<{type: boolean}>`
     width: fit-content;
     margin-left: ${(props) => props.type == false ? 'unset' : 'auto'};
+    margin-bottom: -8px;
     color: #65766B;
     padding: 10px 20px;
     background-color: #F6F9FA;
@@ -146,7 +147,7 @@ const SyledAvatar = styled(Avatar)`
     margin: 10px 15px 35px 5px;
 `;
 
-const StyledReaction = styled(Box)`
+const StyledReaction = styled(Box)<{hasReact: boolean}>`
     position: absolute;
     bottom: -10px;
     /* right: -237%; */
@@ -155,7 +156,7 @@ const StyledReaction = styled(Box)`
     z-index: 999;
     width: max-content;
     gap: 4px;
-    padding: 4px 4px;
+    padding: ${(props) => props.hasReact == true ? '4px 4px;' : 'unset'};
     border-radius: 20px;
     background-color: #fff;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -252,7 +253,7 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
                 <Tooltip title={message.sent_at} placement={loggedInUser?.email == message.user ? 'right' : 'left'} arrow TransitionComponent={Zoom}>
                     <MessageType type={loggedInUser?.email == message.user}>
                         <p>{message.text}</p>
-                        <StyledReaction>
+                        <StyledReaction hasReact={message?.reactions.length > 0}>
                             {message?.reactions.length > 0 && message?.reactions.filter((value, index, self) => self.indexOf(value) === index).map(r => renderReaction(r))}
                         </StyledReaction>
                         {/* <StyledTimestamp>{message.sent_at}</StyledTimestamp> */}
