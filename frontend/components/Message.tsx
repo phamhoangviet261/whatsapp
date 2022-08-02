@@ -22,6 +22,7 @@ import {
 	setDoc
 } from 'firebase/firestore'
 import { auth, db } from '../config/firebase'
+import Emoji from './Emoji';
 
 const StyledTimestamp = styled.span`
 	color: gray;
@@ -236,6 +237,8 @@ const Message = ({ message, photo, targetname }: { message: IMessage, photo: str
 			{ merge: true }
 		)
     }
+
+    const unicodeTohex = (unicode: string): number => parseInt('0x' + unicode.split('+')[1], 16)
 
 	return (
        

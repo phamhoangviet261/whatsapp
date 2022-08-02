@@ -9,13 +9,13 @@ const StyledContainer= styled.div<{isShowing: boolean}>`
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 15px;
+    padding: 5px;
     word-break: break-all;
-    background-color: ${(props) => props.isShowing ? "#e5e5e5" : ""};
-    margin: 5px;
+    background-color: ${(props) => props.isShowing ? "#dee3e7" : ""};
+    /* margin: 5px; */
     border-radius: 8px;
     &:hover{
-        background-color: #e9eaeb;
+        background-color: #dee3e7;
     }
 `;
 
@@ -28,7 +28,8 @@ const StyledName = styled.p`
   padding: 0;
   margin: 0;
   top: 0;
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 14px;
 `;
 
 const StyledNearestChat = styled.span`

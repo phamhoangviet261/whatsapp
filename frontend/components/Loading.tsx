@@ -18,14 +18,7 @@ const StyledImageWrapper = styled.div`
 const Loading = () => {
 	return (
 		<StyledContainer>
-			<StyledImageWrapper>
-				<Image
-					src={WhatsAppLogo}
-					alt='Whatsapp Logo'
-					height='200px'
-					width='200px'
-				/>
-			</StyledImageWrapper>
+			
 
 			<CircularProgress />
 		</StyledContainer>

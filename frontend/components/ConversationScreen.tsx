@@ -7,6 +7,8 @@ import {
 	generateQueryGetMessages,
 	transformMessage
 } from '../utils/getMessagesInConversation'
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Box from '@mui/material/Box';
 import RecipientAvatar from './RecipientAvatar'
 import AttachFileIcon from '@mui/icons-material/AttachFile'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -19,6 +21,7 @@ import Message from './Message'
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
 import SendIcon from '@mui/icons-material/Send'
 import MicIcon from '@mui/icons-material/Mic'
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import {
 	KeyboardEventHandler,
 	MouseEventHandler,
@@ -37,6 +40,8 @@ import {
 } from 'firebase/firestore'
 import Reply from '@mui/icons-material/Reply'
 import SettingBar from '../components/SettingBar'
+import {generateEmojiByGroup} from '../utils/getEmoji'
+import EmojiPack from './EmojiPack'
 interface Reply{
 	conversation_id: string
 	message_reply_id: string
@@ -109,7 +114,7 @@ const StyledMessageContainer = styled.div`
 	display: flex;
     flex-direction: column;
     justify-content: flex-end;
-	background-image: url('https://i.pinimg.com/564x/a7/9d/4a/a79d4a17f3308c7b1978ec70b87d5ed2.jpg');
+	/* background-image: url('https://i.pinimg.com/564x/a7/9d/4a/a79d4a17f3308c7b1978ec70b87d5ed2.jpg'); */
 	background-repeat: no-repeat;
   	background-attachment: fixed;
 	background-repeat: repeat;	
@@ -126,7 +131,7 @@ const StyledInputContainer = styled.form`
 	bottom: 0;
 	background-color: white;
 	z-index: 9999;
-	padding: 5px 0px;
+	/* padding: 5px 0px; */
 	width: 100%;
 `;
 
@@ -134,7 +139,7 @@ const StyledBottomScreenContainer1 = styled.div`
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	margin: 10px 15px;
+	/* margin: 10px 15px; */
 	border-top: 1px solid #e7e7e7;
 `;
 
@@ -152,6 +157,7 @@ const StyledInput = styled.input`
 	padding: 15px;
 	margin-left: 15px;
 	margin-right: 15px;
+	padding-right: 40px;
 `;
 
 const EndOfMessagesForAutoScroll = styled.div`
@@ -277,6 +283,18 @@ const ConversationScreen = ({
 		}
 		setReply(newReply);
 	}
+
+	// handle open popover emoji-pack
+	const [open, setOpen] = useState(false);
+
+    const handleClick = () => {
+        setOpen((prev) => !prev);
+    };
+
+    const handleClickAway = () => {
+        setOpen(false);
+    };
+
 	return (
 		<StyledContainer>
 			<StyledConversationContainer>
@@ -332,11 +350,14 @@ const ConversationScreen = ({
 							<IconButton>
 								<MoreHorizIcon />
 							</IconButton>
-							<IconButton>
+							{/* <IconButton>
 								<InsertEmoticonIcon />
-							</IconButton>
+							</IconButton> */}
 							<IconButton>
 									<AttachFileIcon />
+							</IconButton>
+							<IconButton>
+								<MicIcon />
 							</IconButton>
 							<StyledInput
 								id="input-chat"
@@ -345,12 +366,18 @@ const ConversationScreen = ({
 								onChange={event => setNewMessage(event.target.value)}
 								onKeyDown={sendMessageOnEnter}
 							/>
+							<ClickAwayListener onClickAway={handleClickAway}>
+								<Box style={{position: 'relative'}}>
+									<IconButton style={{ transform: 'translateX(-59px)'}} onClick={handleClick}>
+										<SentimentSatisfiedAltIcon></SentimentSatisfiedAltIcon>
+									</IconButton>
+									<EmojiPack open={open}></EmojiPack>
+								</Box>
+							</ClickAwayListener>
 							<IconButton onClick={sendMessageOnClick} disabled={!newMessage}>
 								<SendIcon />
 							</IconButton>
-							<IconButton>
-								<MicIcon />
-							</IconButton>
+							
 						</StyledBottomScreenContainer2>
 					</StyledInputContainer>
 				</ReplyContext.Provider>

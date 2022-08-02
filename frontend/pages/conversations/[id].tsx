@@ -14,7 +14,10 @@ import {
 	transformMessage
 } from '../../utils/getMessagesInConversation'
 import { getRecipientEmail } from '../../utils/getRecipientEmail'
-import SettingBar from '../../components/SettingBar'
+// import SettingBar from '../../components/SettingBar'
+
+// import {generateEmojiByGroup} from '../../utils/getEmoji'
+
 interface Props {
 	conversation: Conversation
 	messages: IMessage[]
@@ -44,6 +47,7 @@ const Conversation = ({ conversation, messages }: Props) => {
     const [chatId, setChatId] = useState<String>('')
     useEffect(() => {
         console.log(loggedInUser)
+		// console.log(generateEmojiByGroup())
         setChatId(router?.query.id as String)
     }, [loggedInUser, router?.query.id])
 	return (

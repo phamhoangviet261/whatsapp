@@ -87,7 +87,6 @@ const StyledAccordionChildTitle = styled.h4`
 
 
 const SettingBar = ({user}: {user: any}) => {
-  console.log({user_side_bar: user})
   const [accordionShow, setAccordionShow] = useState(1);
   const handleClick = (value: number) => {
     if(value != accordionShow){

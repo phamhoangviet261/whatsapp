@@ -53,6 +53,7 @@ const StyledHeader = styled.div`
 `
 
 const StyledSearch = styled.div`
+	position: relative;
 	display: flex;
 	align-items: center;
 	padding: 15px;
@@ -66,10 +67,19 @@ const StyledUserAvatar = styled(Avatar)`
 	}
 `
 
+const StyledSearchIcon = styled(SearchIcon)`
+	position: absolute;
+	margin-left: 10px;
+	transform: scale(0.8);
+`;
+
 const StyledSearchInput = styled.input`
 	outline: none;
 	border: none;
 	flex: 1;
+	background-color: #f0f2f5;
+	padding: 10px 10px 10px 35px;
+	border-radius: 30px;
 `
 
 const StyledSidebarButton = styled(Button)`
@@ -156,7 +166,7 @@ const Sidebar = ({chatId}: {chatId: String}) => {
 			</StyledHeader>
 
 			<StyledSearch>
-				<SearchIcon />
+				<StyledSearchIcon />
 				<StyledSearchInput placeholder='Search in conversations' />
 			</StyledSearch>
 
